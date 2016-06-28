@@ -1,0 +1,4 @@
+virtualenv
+future
+requests
+mysql_connector

@@ -1,0 +1,4 @@
+.gitold
+*.pyc
+.python
+.env

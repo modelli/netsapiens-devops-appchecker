@@ -1,0 +1,3 @@
+[submodule "checker.app"]
+	path = checker.app
+	url = ./checker.app
