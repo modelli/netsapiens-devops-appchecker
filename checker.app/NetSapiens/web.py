@@ -46,6 +46,8 @@ class Web(object):
       __config['http'] = { }
       __config['http']['url'] = args.web_url
       __config['http']['verify'] = bool(args.web_ignore_cert == False)
+      if __config['http']['verify'] == False:
+          urllib3.disable_warnings()
       __config['http']['timeout'] = args.web_timeout
       __config['http']['stream'] = False
       __config['debug'] = args.debug
@@ -63,7 +65,7 @@ class Web(object):
     return False
 
   def restartServer(self):
-    self.log.debug('%s.__restartServer Attempting to start server' % (__name__))
+    self.log.debug('%s.__restartServer Attempting to start Apache Service' % (__name__))
     try:
         subprocess.call(['service', 'apache2', 'restart'])
     except:
