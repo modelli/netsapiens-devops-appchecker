@@ -18,9 +18,9 @@ class FILO(object):
             if obj.config['debug'] == True:
                 _ret = self.__datav.list()
             else:
-                raise
+                _ret = self.__datav.pop()
         except:
-            _ret = self.__datav.pop()
+            _ret = None
         finally:
             return _ret
 

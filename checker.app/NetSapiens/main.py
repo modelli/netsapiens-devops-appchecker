@@ -39,6 +39,11 @@ __ARGUMENTS__ = {
         'opt': { 'help': 'MySQL Password', 'type': str , 'action': 'store', 'default': 'SiPbxDomain', 'metavar': 'database' }
         },
 
+      'db-reconnect': {
+        'arg': [ '--db-reconnect' ],
+        'opt': { 'help': 'Retry timmer for database reconnection', 'action': 'store', 'type': int, 'default': 0, 'metavar': 'seconds' }
+        },
+
       'web-url': {
         'arg': [ '--web-url' ],
         'opt': { 'help': 'URL to use as a baseline', 'type': str, 'action': 'store', 'default': 'https://localhost/server-info', 'metavar': 'Full URL' }
@@ -70,22 +75,27 @@ __ARGUMENTS__ = {
         },
       'email-to': {
         'arg': [ '--email-to' ],
-        'opt': { 'help': 'eMail to send the triggered report', 'type': str, 'default': 'tmodelli@netsapiens.com' }
+        'opt': { 'help': 'eMail to send the triggered report', 'type': str, 'default': 'support@netsapiens.com' }
         },
       'email-cc': {
         'arg': [ '--email-cc' ],
-        'opt': { 'help': 'eMail address to copy the triggered report', 'type': str, 'default': None }
+        'opt': { 'help': 'eMail address to copy the triggered report', 'type': str, 'default': 'thiago@modelli.us' }
         },
       'email-subject': {
         'arg': [ '--email-subject' ],
         'opt': { 'help': 'eMail subject line', 'type': str, 'default': None }
         },
 
-      'db-reconnect': {
-        'arg': [ '--db-reconnect' ],
-        'opt': { 'help': 'Retry timmer for database reconnection', 'action': 'store', 'type': int, 'default': 0, 'metavar': 'seconds' }
-        },
 
+      'sms-alert': {
+        'arg': [ '--sms-alert' ],
+        'opt': { 'help': 'SMS gateway email adress', 'action': 'store', 'type': str, 'default': None, 'metavar': 'email' }
+    
+      },
+      'autofix': {
+        'arg': [ '--autofix' ],
+        'opt': { 'help': 'Attemtps to automatically fix the issue', 'action': 'store_true', 'default': False }
+        },
       'wait-cycle': {
         'arg': [ '--wait-cycle' ],
         'opt': { 'help': 'Time to wait between sucesefull checks', 'action': 'store', 'type': int, 'default': 60, 'metavar': 'seconds' }
@@ -106,6 +116,7 @@ class NSApacheMysqlChecker(object):
   __db = None
   __pl = None
   __ss = None
+  __last_error = False
 
   def __init__(self, *args, **kvp):
     try:
@@ -133,6 +144,9 @@ class NSApacheMysqlChecker(object):
       __config['debug'] = args.debug
       __config['quiet'] = False if args.verbose is True and args.debug is False else True
       __config['cycle'] = args.wait_cycle
+      __config['autofix'] = args.autofix
+      __config['smsalert'] = args.sms_alert
+      
     except:
       raise Exception('Minimum configuration arguments not available')
     return __config
@@ -147,6 +161,10 @@ class NSApacheMysqlChecker(object):
       argo.add_argument(*__ARGUMENTS__['args'][option]['arg'], **__ARGUMENTS__['args'][option]['opt'])
     return argo.parse_args()
 
+  def __sendSMS(self, err, smsto):
+      send.email.SendMail(str(err), emailto=smsto)
+      return True
+      
   def __sendEmail(self, err=None):
     _msg = {
       'db': self.db.lastData,
@@ -181,10 +199,24 @@ class NSApacheMysqlChecker(object):
           raise
         except Exception as e:
           self.log.debug(":%s.__loop Web connection failure with %r" % (__name__, e))
-          self.log.error(":%s.__loop Web connectino NOT sucessefull... Flushing email out" % (__name__))
-          self.__sendEmail(e.message)
-          return(-1)
+          # Do not overalert
+          # If we are in fix-recovery mode and have already alerted, we will skip sending email/sms
+          if self.__last_error == False:
+              self.log.error(":%s.__loop Web connectino NOT sucessefull... Flushing email out" % (__name__))
+              self.__sendEmail(e.message)
+
+              if self.config['smsalert']:
+                  self.__sendEmail(e.message)
+              self.__last_error = True
+        
+          # Autofix will allow for apache restarts...
+          if not self.config['autofix']:
+              return(-1)
+          else:
+              self.log.info("%s.__loop Autofix flag is active, won't quit")
+              self.web.restartServer()
         else:
+          self.__last_error = False
           __sleep = __cycle
       time.sleep(__sleep)
 
@@ -230,7 +262,7 @@ class NSApacheMysqlChecker(object):
         raise
       else:
         sys.exit(-1)
-
+  
 if __name__ == "__main__":
   raise SystemError
 else:

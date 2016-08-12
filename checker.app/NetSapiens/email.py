@@ -75,11 +75,15 @@ class Email(object):
     return True
 
 
-  def __buildHeader(self, _mime, _test=False):
+  def __buildHeader(self, _mime, _test=False, mailto=None):
     if type(_mime) is None:
       raise TypeError('message must be in Mime format')
+  
     _mime['From'] = self.config['header']['from']
-    _mime['To'] = self.config['header']['to']
+    if mailto is not None:
+        _mime['To'] = mailto
+    else:
+        _mime['To'] = self.config['header']['to']
     _mime['Cc'] = self.config['header']['cc']
     if _test:
       _s = 'pre-flight email test for'
@@ -137,9 +141,9 @@ class Email(object):
 
 
   #XXX: This function could use a lot of work utilizing MIMEs and attachmenets
-  def sendMail(self, _test=False, **msg):
+  def sendMail(self, _test=False, mailto=None, **msg):
     _mime = MIMEMultipart()
-    self.__buildHeader(_mime, _test)
+    self.__buildHeader(_mime, _test, mailto=mailto)
     self.__buildBody(_mime, _test, **msg)
 
     if self.config['debug'] is True and self.config['pretest'] is False:

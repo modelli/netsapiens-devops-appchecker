@@ -2,7 +2,7 @@
 
 from __future__ import nested_scopes, absolute_import, with_statement, print_function
 
-import os, sys, stat, errno, traceback, logging
+import os, sys, stat, errno, traceback, logging, subprocess
 
 import requests
 from time import sleep
@@ -51,7 +51,7 @@ class Web(object):
       __config['debug'] = args.debug
 
     except Exception as e:
-      self.log.critical('%s.__initConfig Failed to configure module. Required arguments missing')
+      self.log.critical('%s.__initConfig Failed to configure module. Required arguments missing' % (__name__))
       raise Exception(e.message)
     return __config
 
@@ -61,6 +61,14 @@ class Web(object):
     self.error['code'] = code
     self.error['message'] = message
     return False
+
+  def restartServer(self):
+    self.log.debug('%s.__restartServer Attempting to start server' % (__name__))
+    try:
+        subprocess.call(['service', 'apache2', 'restart'])
+    except:
+        raise
+    return True
 
   def testServer(self): return self.checkStatus(_testServer=__name__)
 

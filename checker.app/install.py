@@ -99,33 +99,33 @@ def modules_install():
            raise
 
 def main_module_install():
-   import git
-   git.Git().clone("https://github.com/modelli/netsapiens-devops.git", 'checker.app')
-
-   print("""
-   -- Module auto-download is currently unlavailable.
-   --- To download this module, please execute:
-   curl -k "https://github.com/modelli/netsapiens/checker.app.tgz" | tar -zvcf -C .
-
-   --- Once done, you should enable this virtual enviroment and run the scirpt. Next step will be to activate the
-   ---- virtual enviroment created by this install script. To do so, you need to type:
-   source ~/.checker.app/bin/activate
-
-   --- Running the script
-   ---- To look into the new scripts help screen, you should type:
-   python -m NetSapiens --help
-
-   ---- To run this script with the default options, which includes: Test DB and Webserver before entering the loop,
-   ---- connect to the database server LOCALHOST and Web url https://localhost/server-status, and send the process to background,
-   ---- you should type:
-   python -m NetSapiens &
-
-   ---- If you want to change the default url ti google and default the db host to 127.0.0.1 you should type:
-   python -m NetSapiens --web-url https://google.com --db-host 127.0.0.1
-
-   **** To use all defaults and run this script in a single line, you should type:
-   curl -k "https://www.modelli.us/netsapiens/checker.app.tgz" | tar -zvcf -C . && source .checker.app/bin/activate && python -m NetSapiens &
-   """)
+#   import git
+#   git.Git().clone("https://github.com/modelli/netsapiens-devops-appchecker.git", 'checker.app')
+    import NetSapiens
+#    print("""
+#    -- Module auto-download is currently unlavailable.
+#    --- To download this module, please execute:
+#    curl -k "https://github.com/modelli/netsapiens-devops-appchecker.git" | tar -zvcf -C .
+# 
+#    --- Once done, you should enable this virtual enviroment and run the scirpt. Next step will be to activate the
+#    ---- virtual enviroment created by this install script. To do so, you need to type:
+#    source ~/.checker.app/bin/activate
+# 
+#    --- Running the script
+#    ---- To look into the new scripts help screen, you should type:
+#    python -m NetSapiens --help
+# 
+#    ---- To run this script with the default options, which includes: Test DB and Webserver before entering the loop,
+#    ---- connect to the database server LOCALHOST and Web url https://localhost/server-status, and send the process to background,
+#    ---- you should type:
+#    python -m NetSapiens &
+# 
+#    ---- If you want to change the default url ti google and default the db host to 127.0.0.1 you should type:
+#    python -m NetSapiens --web-url https://google.com --db-host 127.0.0.1
+# 
+#    **** To use all defaults and run this script in a single line, you should type:
+#    curl -k "https://www.modelli.us/netsapiens/checker.app.tgz" | tar -zvcf -C . && source .checker.app/bin/activate && python -m NetSapiens &
+#    """)
    #_http.conf.set(dict())
    #_http.conf.update({'url': __MODULE_URL, 'verify': True, 'timeout': 6})
    #_http.web = _requests.get(**_http.conf)
