@@ -4,7 +4,7 @@ from __future__ import nested_scopes, absolute_import, with_statement, print_fun
 
 import os, sys, stat, errno, traceback, logging, subprocess
 
-import requests
+import requests, urllib3
 from time import sleep
 
 from . import helpers
